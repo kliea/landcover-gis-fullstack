@@ -10,6 +10,11 @@ urlpatterns = [
         views.province_geometry,
         name="province-geometry",
     ),
+    path(
+        "provinces/<str:province_name>/border/",
+        views.province_border,
+        name="province-border",
+    ),
     path("municipalities/by-point/", views.municipality_by_point, name="municipality-by-point"),
     path("municipalities/all/", views.all_municipalities, name="all-municipalities"),
     path(

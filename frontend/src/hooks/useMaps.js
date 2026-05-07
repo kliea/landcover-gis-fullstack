@@ -17,13 +17,14 @@ import GeoJSON from 'ol/format/GeoJSON';
 import MVT from 'ol/format/MVT';
 import LayerSwitcher from 'ol-layerswitcher';
 import 'ol-layerswitcher/dist/ol-layerswitcher.css';
-import { landCoverStyle, muniStyle } from '../utils/mapStyles';
+import { landCoverStyle, muniStyle, provinceStyle } from '../utils/mapStyles';
 import {
 	LANDCOVER_TILE_URL,
 	MUNI_TILE_URL,
 	getLandCover,
 	getLocationPoints,
 	getMunicipalityByPoint,
+	getProvinceBorder,
 	getProvinceGeometry,
 	getProvinces,
 	getRegions,
@@ -49,8 +50,10 @@ const useMaps = () => {
 	const [tilesVisible, setTilesVisible] = useState(false);
 	const muniSourceRef = useRef(new VectorSource());
 	const landCoverSourceRef = useRef(new VectorSource());
+	const provinceBorderSourceRef = useRef(new VectorSource());
 	const municipalityLayerRef = useRef(null);
 	const landCoverLayerRef = useRef(null);
+	const provinceBorderLayerRef = useRef(null);
 	const muniTileLayerRef = useRef(null);
 	const lcTileLayerRef = useRef(null);
 	const heatmapSourceRef = useRef(new VectorSource());
@@ -109,7 +112,6 @@ const useMaps = () => {
 		});
 
 		const municipalityLayer = new VectorLayer({
-			title: 'Municipality (Province)',
 			source: muniSourceRef.current,
 			zIndex: 20,
 			visible: false,
@@ -117,11 +119,17 @@ const useMaps = () => {
 		});
 
 		const landCoverLayer = new VectorLayer({
-			title: 'LandCover (Province)',
 			source: landCoverSourceRef.current,
 			zIndex: 10,
 			visible: false,
 			style: landCoverStyle,
+		});
+
+		provinceBorderLayerRef.current = new VectorLayer({
+			source: provinceBorderSourceRef.current,
+			zIndex: 25,
+			visible: false,
+			style: provinceStyle,
 		});
 
 		muniTileLayerRef.current = new VectorTileLayer({
@@ -173,6 +181,7 @@ const useMaps = () => {
 				muniTileLayerRef.current,
 				municipalityLayer,
 				landCoverLayer,
+				provinceBorderLayerRef.current,
 				heatmapLayerRef.current,
 			],
 		});
@@ -234,6 +243,17 @@ const useMaps = () => {
 			'LandCover first classname:',
 			geojson?.features?.[0]?.properties?.classname || '(none)'
 		);
+	};
+
+	const loadProvinceBorder = async (provinceName) => {
+		const geojson = await getProvinceBorder(provinceName);
+		const format = new GeoJSON();
+		provinceBorderSourceRef.current.clear();
+		const features = format.readFeatures(geojson, {
+			featureProjection: 'EPSG:3857',
+			dataProjection: 'EPSG:4326',
+		});
+		provinceBorderSourceRef.current.addFeatures(features);
 	};
 
 	const loadHeatmapPoints = async () => {
@@ -345,8 +365,10 @@ const useMaps = () => {
 		setLayersVisible(false);
 		await loadProvinceLayer(provinceToLoad);
 		await loadLandCover(provinceToLoad);
+		await loadProvinceBorder(provinceToLoad);
 		municipalityLayerRef.current?.setVisible(true);
 		landCoverLayerRef.current?.setVisible(true);
+		provinceBorderLayerRef.current?.setVisible(true);
 		setShowMunicipality(true);
 		setShowLandCover(true);
 	};
@@ -357,8 +379,10 @@ const useMaps = () => {
 		setLayersVisible(false);
 		await loadProvinceLayer(name);
 		await loadLandCover(name);
+		await loadProvinceBorder(name);
 		municipalityLayerRef.current?.setVisible(true);
 		landCoverLayerRef.current?.setVisible(true);
+		provinceBorderLayerRef.current?.setVisible(true);
 		setShowMunicipality(true);
 		setShowLandCover(true);
 	};
@@ -371,8 +395,10 @@ const useMaps = () => {
 		if (show) {
 			muniSourceRef.current.clear();
 			landCoverSourceRef.current.clear();
+			provinceBorderSourceRef.current.clear();
 			municipalityLayerRef.current?.setVisible(false);
 			landCoverLayerRef.current?.setVisible(false);
+			provinceBorderLayerRef.current?.setVisible(false);
 			setShowMunicipality(true);
 			setShowLandCover(true);
 			mapRef.current?.getView().animate({
@@ -383,6 +409,7 @@ const useMaps = () => {
 		} else {
 			setShowMunicipality(false);
 			setShowLandCover(false);
+			provinceBorderLayerRef.current?.setVisible(false);
 		}
 
 		setTilesVisible(show);

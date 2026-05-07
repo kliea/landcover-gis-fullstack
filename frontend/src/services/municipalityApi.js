@@ -15,6 +15,11 @@ export const getProvinceGeometry = (provinceName) =>
 		`${BASE}/api/provinces/${encodeURIComponent(provinceName)}/geometry/`
 	).then((r) => r.json());
 
+export const getProvinceBorder = (provinceName) =>
+	fetch(
+		`${BASE}/api/provinces/${encodeURIComponent(provinceName)}/border/`
+	).then((r) => r.json());
+
 export const getMunicipalityByPoint = (lon, lat) =>
 	fetch(`${BASE}/api/municipalities/by-point/?lon=${lon}&lat=${lat}`).then((r) =>
 		r.json()

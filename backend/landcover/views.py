@@ -1,3 +1,5 @@
+import json
+
 from django.contrib.gis.geos import Point
 from django.contrib.gis.db.models.aggregates import Union
 from rest_framework.decorators import api_view
@@ -43,6 +45,28 @@ def province_geometry(request, province_name):
     qs = Municipality.objects.filter(pro_name__iexact=province_name)
     serializer = MunicipalitySerializer(qs, many=True)
     return Response(serializer.data)
+
+
+@api_view(["GET"])
+def province_border(request, province_name):
+    union_geom = Municipality.objects.filter(pro_name__iexact=province_name).aggregate(
+        geom=Union("wkb_geometry")
+    )["geom"]
+    if not union_geom:
+        return Response({"type": "FeatureCollection", "features": []})
+
+    return Response(
+        {
+            "type": "FeatureCollection",
+            "features": [
+                {
+                    "type": "Feature",
+                    "geometry": json.loads(union_geom.geojson),
+                    "properties": {"pro_name": province_name},
+                }
+            ],
+        }
+    )
 
 
 @api_view(["GET"])
