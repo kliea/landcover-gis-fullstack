@@ -19,6 +19,13 @@ urlpatterns = [
     ),
     path("landcover/", views.landcover_by_province, name="landcover-by-province"),
     path("landcover/all/", views.all_landcover, name="all-landcover"),
+    path("points/", views.location_points, name="location-points"),
+    path("points/add/", views.add_location_point, name="add-location-point"),
+    path(
+        "points/<int:point_id>/delete/",
+        views.delete_location_point,
+        name="delete-location-point",
+    ),
     path(
         "tiles/landcover/<int:z>/<int:x>/<int:y>/",
         views.LandCoverTileView.as_view(),

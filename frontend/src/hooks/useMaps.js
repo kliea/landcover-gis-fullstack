@@ -10,6 +10,7 @@ import { createStringXY } from 'ol/coordinate.js';
 import { ScaleLine } from 'ol/control.js';
 import VectorLayer from 'ol/layer/Vector';
 import VectorTileLayer from 'ol/layer/VectorTile';
+import HeatmapLayer from 'ol/layer/Heatmap';
 import VectorSource from 'ol/source/Vector';
 import VectorTileSource from 'ol/source/VectorTile';
 import GeoJSON from 'ol/format/GeoJSON';
@@ -21,10 +22,12 @@ import {
 	LANDCOVER_TILE_URL,
 	MUNI_TILE_URL,
 	getLandCover,
+	getLocationPoints,
 	getMunicipalityByPoint,
 	getProvinceGeometry,
 	getProvinces,
 	getRegions,
+	addLocationPoint,
 } from '../services/municipalityApi';
 
 const useMaps = () => {
@@ -50,6 +53,11 @@ const useMaps = () => {
 	const landCoverLayerRef = useRef(null);
 	const muniTileLayerRef = useRef(null);
 	const lcTileLayerRef = useRef(null);
+	const heatmapSourceRef = useRef(new VectorSource());
+	const heatmapLayerRef = useRef(null);
+	const [heatmapVisible, setHeatmapVisible] = useState(false);
+	const [pointFormOpen, setPointFormOpen] = useState(false);
+	const [pendingCoord, setPendingCoord] = useState(null);
 
 	useEffect(() => {
 		if (!mapRef.current) {
@@ -60,6 +68,10 @@ const useMaps = () => {
 			if (featureInfoTriggered) {
 				fetchFeatureInfo(e);
 			}
+			if (pointFormOpen) {
+				const [lon, lat] = toLonLat(e.coordinate);
+				setPendingCoord({ lon, lat });
+			}
 		};
 
 		mapRef.current.on('singleclick', handleSingleClick);
@@ -67,7 +79,7 @@ const useMaps = () => {
 		return () => {
 			mapRef.current?.un('singleclick', handleSingleClick);
 		};
-	}, [featureInfoTriggered]);
+	}, [featureInfoTriggered, pointFormOpen]);
 
 	const initializeMap = () => {
 		const mapView = new View({
@@ -134,6 +146,15 @@ const useMaps = () => {
 			visible: false,
 		});
 
+		heatmapLayerRef.current = new HeatmapLayer({
+			title: 'Heatmap',
+			source: heatmapSourceRef.current,
+			blur: 20,
+			radius: 15,
+			weight: (feature) => feature.get('intensity') || 1.0,
+			visible: false,
+		});
+
 		municipalityLayerRef.current = municipalityLayer;
 		landCoverLayerRef.current = landCoverLayer;
 
@@ -152,6 +173,7 @@ const useMaps = () => {
 				muniTileLayerRef.current,
 				municipalityLayer,
 				landCoverLayer,
+				heatmapLayerRef.current,
 			],
 		});
 
@@ -212,6 +234,38 @@ const useMaps = () => {
 			'LandCover first classname:',
 			geojson?.features?.[0]?.properties?.classname || '(none)'
 		);
+	};
+
+	const loadHeatmapPoints = async () => {
+		const geojson = await getLocationPoints();
+		const format = new GeoJSON();
+		heatmapSourceRef.current.clear();
+		heatmapSourceRef.current.addFeatures(
+			format.readFeatures(geojson, { featureProjection: 'EPSG:3857' })
+		);
+	};
+
+	const toggleHeatmap = async () => {
+		if (!heatmapVisible) {
+			await loadHeatmapPoints();
+			heatmapLayerRef.current?.setVisible(true);
+			setHeatmapVisible(true);
+			return;
+		}
+		heatmapLayerRef.current?.setVisible(false);
+		setHeatmapVisible(false);
+	};
+
+	const handleAddPoint = async (formData) => {
+		if (!pendingCoord) return;
+		await addLocationPoint({
+			...formData,
+			lon: pendingCoord.lon,
+			lat: pendingCoord.lat,
+		});
+		await loadHeatmapPoints();
+		setPendingCoord(null);
+		setPointFormOpen(false);
 	};
 
 	const fetchFeatureInfo = async (e) => {
@@ -378,6 +432,13 @@ const useMaps = () => {
 		showMunicipality,
 		showLandCover,
 		layersVisible,
+		heatmapVisible,
+		toggleHeatmap,
+		pointFormOpen,
+		setPointFormOpen,
+		pendingCoord,
+		setPendingCoord,
+		handleAddPoint,
 		handleInfoScan,
 		handleQueryScan,
 		zoomIn,

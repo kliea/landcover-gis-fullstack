@@ -5,12 +5,15 @@ import { CustomHookContext } from './layouts/HooksWrapper';
 import Container from './layouts/Container';
 import Button from '../components/Button'; //custom components
 import MapLegend from '../components/MapLegend';
+import PointInputForm from '../components/PointInputForm';
 import {
 	BadgeCheck,
 	BadgeInfo,
 	EyeOff,
+	Flame,
 	Home,
 	Layers,
+	MapPin,
 	ScanEye,
 	ZoomIn,
 	ZoomOut,
@@ -34,6 +37,13 @@ export default function Maps() {
 		showMunicipality,
 		showLandCover,
 		layersVisible,
+		heatmapVisible,
+		toggleHeatmap,
+		pointFormOpen,
+		setPointFormOpen,
+		pendingCoord,
+		setPendingCoord,
+		handleAddPoint,
 		handleInfoScan,
 		handleQueryScan,
 		zoomIn,
@@ -70,11 +80,23 @@ export default function Maps() {
 		<Container id='Maps'>
 			<div className='flex flex-col h-screen pt-28 bg-[#2F5025]'>
 				<div className='flex flex-col flex-1 p-10 bg-black min-h-0'>
-					<div
-						id='map'
-						ref={mapRef}
-						className='flex-1 min-h-0 shadow-2xl border-2 border-b-0 border-neutral-900 bg-white'></div>
-					<MapLegend visible={showLandCover} />
+					<div className='relative flex-1 min-h-0'>
+						<div
+							id='map'
+							ref={mapRef}
+							className='h-full min-h-0 shadow-2xl border-2 border-b-0 border-neutral-900 bg-white'></div>
+						{pointFormOpen && (
+							<PointInputForm
+								coord={pendingCoord}
+								onSubmit={handleAddPoint}
+								onCancel={() => {
+									setPointFormOpen(false);
+									setPendingCoord(null);
+								}}
+							/>
+						)}
+					</div>
+					<MapLegend visible={layersVisible} />
 					<div className='flex w-full justify-between items-center border-2 border-t-0 border-neutral-900 bg-gray-200 p-1 rounded-b-lg '>
 						<div className='flex flex-wrap justify-center gap-2 pl-2'>
 							<button>
@@ -88,6 +110,18 @@ export default function Maps() {
 							</button>
 							<button onClick={zoomOut}>
 								<ZoomOut strokeWidth={2.5} />
+							</button>
+							<button onClick={toggleHeatmap}>
+								<Flame
+									strokeWidth={2.5}
+									className={heatmapVisible ? 'text-orange-500' : ''}
+								/>
+							</button>
+							<button onClick={() => setPointFormOpen((prev) => !prev)}>
+								<MapPin
+									strokeWidth={2.5}
+									className={pointFormOpen ? 'text-blue-500' : ''}
+								/>
 							</button>
 							<button
 								onClick={toggleAllLayers}

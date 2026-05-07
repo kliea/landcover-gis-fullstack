@@ -5,8 +5,13 @@ from rest_framework.response import Response
 from vectortiles.backends.postgis import VectorLayer
 from vectortiles.rest_framework.views import MVTAPIView
 
-from .models import LandCover, Municipality
-from .serializers import LandCoverSerializer, MunicipalitySerializer
+from .models import LandCover, LocationPoint, Municipality
+from .serializers import (
+    LandCoverSerializer,
+    LocationPointInputSerializer,
+    LocationPointSerializer,
+    MunicipalitySerializer,
+)
 
 
 @api_view(["GET"])
@@ -94,6 +99,32 @@ def all_landcover(request):
     qs = LandCover.objects.all()
     serializer = LandCoverSerializer(qs, many=True)
     return Response(serializer.data)
+
+
+@api_view(["GET"])
+def location_points(request):
+    qs = LocationPoint.objects.all()
+    serializer = LocationPointSerializer(qs, many=True)
+    return Response(serializer.data)
+
+
+@api_view(["POST"])
+def add_location_point(request):
+    serializer = LocationPointInputSerializer(data=request.data)
+    if serializer.is_valid():
+        serializer.save()
+        return Response({"status": "created"}, status=201)
+    return Response(serializer.errors, status=400)
+
+
+@api_view(["DELETE"])
+def delete_location_point(request, point_id):
+    try:
+        point = LocationPoint.objects.get(id=point_id)
+        point.delete()
+        return Response({"status": "deleted"})
+    except LocationPoint.DoesNotExist:
+        return Response({"error": "not found"}, status=404)
 
 
 class MunicipalityVectorLayer(VectorLayer):

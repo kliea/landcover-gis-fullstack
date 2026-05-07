@@ -31,6 +31,21 @@ export const getAllMunicipalities = () =>
 export const getAllLandCover = () =>
 	fetch(`${BASE}/api/landcover/all/`).then((r) => r.json());
 
+export const getLocationPoints = () =>
+	fetch(`${BASE}/api/points/`).then((r) => r.json());
+
+export const addLocationPoint = (data) =>
+	fetch(`${BASE}/api/points/add/`, {
+		method: 'POST',
+		headers: { 'Content-Type': 'application/json' },
+		body: JSON.stringify(data),
+	}).then((r) => r.json());
+
+export const deleteLocationPoint = (id) =>
+	fetch(`${BASE}/api/points/${id}/delete/`, {
+		method: 'DELETE',
+	}).then((r) => r.json());
+
 export const MUNI_TILE_URL = `${BASE}/api/tiles/municipalities/{z}/{x}/{y}/`;
 
 export const LANDCOVER_TILE_URL = `${BASE}/api/tiles/landcover/{z}/{x}/{y}/`;

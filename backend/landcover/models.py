@@ -42,3 +42,15 @@ class LandCover(models.Model):
 
     def __str__(self) -> str:
         return self.classname
+
+
+class LocationPoint(models.Model):
+    name = models.CharField(max_length=254)
+    description = models.TextField(blank=True)
+    category = models.CharField(max_length=100, blank=True)
+    intensity = models.FloatField(default=1.0)
+    wkb_geometry = models.PointField(srid=4326)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = "location_points"
