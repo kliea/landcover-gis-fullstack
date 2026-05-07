@@ -27,3 +27,5 @@ dist-ssr
 backend/geodjango_sample/.env
 backend/data/
 backend/ph_muni.sql
+!backend/data/
+!backend/data/README.md
