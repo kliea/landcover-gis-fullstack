@@ -1,0 +1,129 @@
+.home {
+    width: 100%;
+    height: 90vh;
+    padding-top: 20px;
+    position: relative;
+    background-color: black;
+}
+
+
+.btn-home {
+    display: block;
+    width: 200px;
+    height: auto;
+    margin-top: 5rem;
+}
+
+.btn-home button {
+    display: block;
+    background-color: inherit;
+    color: #5cdb95;
+    padding: 20px 15px;
+    width: 100%;
+    border: none;
+    outline: none;
+    text-align: center;
+    transition: 0.3s;
+    border-radius: 20px;
+}
+
+.btn-home button:hover {
+    background-color: #549969;
+    color: white;
+    cursor: pointer;
+    font-weight: 400;
+}
+
+.btn-home button span {
+    cursor: pointer;
+    display: inline-block;
+    position: relative;
+    transition: 0.5s;
+}
+
+.btn-home button span:after {
+    content: '\00bb';
+    position: absolute;
+    opacity: 0;
+    top: 0;
+    right: -20px;
+    transition: 0.5s;
+}
+
+.btn-home button:hover span {
+    padding-right: 30px;
+}
+
+.btn-home button:hover span:after {
+    opacity: 1;
+    right: 0;
+}
+
+.intro {
+    width: 500px;
+    height: auto;
+    font-size: 20px;
+    margin-left: 20rem;
+    margin-top: -100px;
+    text-align: justify;
+    display: none;
+    flex-direction: row;
+    flex-wrap: wrap;
+    color: #5cdb95;
+}
+
+.mission {
+    width: 500px;
+    height: auto;
+    font-size: 20px;
+    margin-left: 20rem;
+    margin-top: -100px;
+    text-align: justify;
+    display: none;
+    flex-direction: row;
+    flex-wrap: wrap;
+    color: #5cdb95;
+}
+
+.history {
+    width: 500px;
+    height: auto;
+    font-size: 20px;
+    margin-left: 20rem;
+    margin-top: -100px;
+    text-align: justify;
+    display: none;
+    flex-direction: row;
+    flex-wrap: wrap;
+    color: #5cdb95;
+}
+
+/* p {
+    text-indent: 50px;
+} */
+
+.ph_img img {
+    width: auto;
+    height: auto;
+    margin-top: -10rem;
+    float: right;
+    transform: translate(var(--_x, 0), var(--_y, 0)) scale(var(--_t, 1));
+    transition: .2s linear;
+}
+
+.ph_img img:hover {
+    --_t: 1.2;
+
+}
+
+.active-intro {
+    display: flex;
+}
+
+.active-mission {
+    display: flex;
+}
+
+.active-history {
+    display: flex;
+}

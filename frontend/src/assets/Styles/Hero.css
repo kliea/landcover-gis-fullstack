@@ -1,0 +1,200 @@
+
+#bgimage{
+    width: 100%;
+    height: 800px;
+    object-fit:cover;
+}
+
+.overlay{
+    position: absolute;
+    top:0px;
+    left:0;
+    width: 100%;
+    height: 805px;
+    background-image: linear-gradient(360deg, 
+    rgba(0, 43, 36, 1) ,
+    rgba(0, 43, 36, 0.5),
+    rgba(0, 43, 36, 0) );
+}
+
+.contents{
+    object-fit: inherit;
+    position:absolute;
+    top: 100px;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content:flex-start;
+    width: 550px;
+    margin-top: 50px;
+    margin-left: 100px;
+    font-size: 50px;
+    padding: 1rem;
+    color: rgb(255, 255, 255);
+}
+
+button{
+    border-radius: 20px;
+    object-fit: inherit;
+    position:absolute;
+    bottom: 50px;
+    justify-content: center;
+    background-color: transparent;
+    margin-left: 500px;
+    font-size: 20px;
+    padding: 10px;
+    color: rgb(255, 255, 255);
+    transition-duration: 0.4s;
+}
+button span {
+    cursor: pointer;
+    display: inline-block;
+    position: relative;
+    transition: 0.5s;
+}
+  
+button span:after {
+    content: '\00bb';
+    position: absolute;
+    opacity: 0;
+    top: 0;
+    right: -20px;
+    transition: 0.5s;
+}
+
+button:hover span {
+    padding-right: 25px;
+ 
+}
+  
+button:hover span:after {
+    opacity: 1;
+    right: 0;
+}
+
+.gallery {
+    --s: 250px; /* control the size */
+    --g: 20px;  /* control the gap */
+    display: grid;
+    position: absolute;
+    margin: 0;
+    top: 150px;
+    right: 300px;
+
+  }
+  
+.gallery img {
+    grid-area: 1/1;
+    width: var(--s);
+    aspect-ratio: 0.866;
+    object-fit: cover;
+    clip-path: polygon(0% 25%,0% 75%,50% 100%,100% 75%,100% 25%,50% 0);
+    transform: translate(var(--_x,0),var(--_y,0)) scale(var(--_t,1));
+    cursor: pointer;
+    filter: grayscale(60%);
+    transition: .2s linear;
+}
+.gallery img:hover {
+    filter: grayscale(0);
+    --_t: 1.2;
+
+}
+  
+  .gallery > img:nth-child(1) {--_x: calc(-100% - var(--g))}
+  .gallery > img:nth-child(3) {--_x: calc( 100% + var(--g))}
+  .gallery > img:nth-child(4),
+  .gallery > img:nth-child(5) {--_y: calc( 75% + .87*var(--g))}
+  .gallery > img:nth-child(5) {--_x: calc(50% + .5*var(--g))}
+  .gallery > img:nth-child(4) {--_x: calc(-50% - .5*var(--g))}
+  .gallery > img:nth-child(6) {--_x: calc( 50% + .5*var(--g))}
+  
+
+@media screen and (max-width:940px){
+    #bgimage{
+        width: 100%;
+        height: 100%;
+        object-fit:cover;
+    }
+    
+    .overlay{
+        position: absolute;
+        top:0px;
+        left:0;
+        width: 100%;
+        height: 37%;
+        background-image: linear-gradient(360deg, 
+        rgba(0, 43, 36, 1) ,
+        rgba(0, 43, 36, 0.5),
+        rgba(0, 43, 36, 0) );
+    }
+    
+    .contents{
+        object-fit: inherit;
+        position:absolute;
+        top: 30px;
+        display: flex;
+        flex-wrap: wrap;
+        justify-content:flex-start;
+        width: 400px;
+        margin-top: 40px;
+        margin-left: 1rem;
+        font-size: 5px;
+        padding: 1rem;
+        color: rgb(255, 255, 255);
+    }
+
+    button{
+        border-radius: 20px;
+        object-fit: inherit;
+        position:absolute;
+        bottom: 450px;
+        justify-content: center;
+        background-color: transparent;
+        margin-left: 35px;
+        font-size: 10px;
+        padding: 10px;
+        color: rgb(255, 255, 255);
+        transition-duration: 0.4s;
+    }
+    
+    
+    .gallery {
+        --s: 30px; /* control the size */
+        --g: 5px;  /* control the gap */
+        display: flex;
+        flex-wrap: wrap;
+        position: absolute;
+        flex-direction: column;
+        margin: 0;
+        top: 50px;
+        right: 50px;
+
+    }
+    
+    .gallery > img:nth-child(1),
+    .gallery > img:nth-child(2),
+    .gallery > img:nth-child(3) {
+      --_x: calc(25% + var(--g));
+      --_y: calc(100% - var(--g));
+    }
+    
+    .gallery > img:nth-child(4),
+    .gallery > img:nth-child(5) {
+      --_y: calc(70% + var(--g));
+    }
+    
+    .gallery > img:nth-child(4) {
+      --_x: calc(60% - var(--g));
+    }
+    
+    .gallery > img:nth-child(5) {
+      --_x: calc(60% - var(--g));
+    }
+    
+    .gallery > img:nth-child(6) {
+      --_x: calc(50% + 0.5*var(--g));
+      --_y: calc(100% - var(--g));
+    }
+    
+    
+  
+}

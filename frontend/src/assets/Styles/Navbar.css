@@ -1,0 +1,44 @@
+/*
+  Based on TailwindCSS recommendations,
+  consider using classes instead of the `@apply` directive
+  @see https://tailwindcss.com/docs/reusing-styles#avoiding-premature-abstraction
+*/
+
+
+
+.content {
+    @apply text-[green] ml-[70px] mt-10 absolute top-[685px];
+    text-shadow: 3px 6px 3px rgba(0, 0, 0, 0.5);
+}
+
+.content h1 {
+    text-shadow: 3px 6px 3px rgba(0, 0, 0, 0.5);
+}
+
+.content p {
+    @apply text-[80px] font-[bolder] text-[#EDF5E1];
+    text-shadow: 3px 6px 3px rgba(0, 0, 0, 0.5);
+}
+
+.content .land {
+    @apply text-[#549969];
+}
+
+.content .land2 {
+    @apply text-[#ff9900];
+}
+
+/*explore button*/
+.button-explore button {
+    @apply bg-transparent font-black text-lg h-[45px] w-[130px] text-[#549969] cursor-pointer transition-[0.5s] ml-[72px] mt-5 hover:bg-[#549969] hover:text-white;
+    font-family: sans-serif;
+}
+
+.b-content {
+    @apply text-white absolute px-[25px] py-[15px] left-[55px] right-0 top-[685px] bottom-0;
+    text-shadow: 0.75px 1px 0.75px rgba(0, 0, 0, 0.5);
+}
+
+section {
+    @apply flex justify-center min-h-screen w-full;
+}
