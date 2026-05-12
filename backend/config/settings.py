@@ -7,14 +7,32 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 load_dotenv(BASE_DIR / ".env", override=True)
 
 # -- GIS library paths ---------------------------------------------------------
-# Must be applied before Django/GDAL initializes - order matters
-_proj = os.getenv("PROJ_LIB")
+# Must be applied before Django/GDAL initializes - order matters.
+# Only use paths that exist on this machine. Stale Windows paths often end up in
+# production env (e.g. Render) if copied from a local .env — those must not be
+# passed through or Django raises OSError loading the DLL/SO.
+def _env_existing_file(var: str):
+    p = (os.getenv(var) or "").strip()
+    return p if p and os.path.isfile(p) else None
+
+
+def _env_existing_dir(var: str):
+    p = (os.getenv(var) or "").strip()
+    return p if p and os.path.isdir(p) else None
+
+
+_proj = _env_existing_dir("PROJ_LIB")
 if _proj:
     os.environ["PROJ_LIB"] = _proj
     os.environ["PROJ_DATA"] = _proj  # GDAL 3.x looks for PROJ_DATA too
+else:
+    # Drop invalid / cross-platform paths so PROJ does not point at missing trees
+    for key in ("PROJ_LIB", "PROJ_DATA"):
+        if key in os.environ and not _env_existing_dir(key):
+            os.environ.pop(key, None)
 
-GDAL_LIBRARY_PATH = os.getenv("GDAL_LIBRARY_PATH") or None
-GEOS_LIBRARY_PATH = os.getenv("GEOS_LIBRARY_PATH") or None
+GDAL_LIBRARY_PATH = _env_existing_file("GDAL_LIBRARY_PATH")
+GEOS_LIBRARY_PATH = _env_existing_file("GEOS_LIBRARY_PATH")
 # -----------------------------------------------------------------------------
 
 SECRET_KEY = os.getenv("DJANGO_SECRET_KEY", "dev-only-secret-key-change-me")
