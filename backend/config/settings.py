@@ -1,6 +1,6 @@
 import os
 from pathlib import Path
-from urllib.parse import urlparse
+from urllib.parse import parse_qs, unquote, urlparse
 
 from dotenv import load_dotenv
 
@@ -117,8 +117,37 @@ TEMPLATES = [
 WSGI_APPLICATION = "config.wsgi.application"
 ASGI_APPLICATION = "config.asgi.application"
 
-DATABASES = {
-    "default": {
+
+def _database_config() -> dict:
+    """Use DATABASE_URL when set (Render / Heroku style). Otherwise DB_* env vars."""
+    database_url = (os.getenv("DATABASE_URL") or "").strip()
+    if database_url:
+        if database_url.startswith("postgres://"):
+            database_url = "postgresql://" + database_url[len("postgres://") :]
+        parsed = urlparse(database_url)
+        query = parse_qs(parsed.query)
+        name = (parsed.path or "").lstrip("/")
+        port = parsed.port or 5432
+        cfg = {
+            "ENGINE": "django.contrib.gis.db.backends.postgis",
+            "NAME": unquote(name) if name else "",
+            "USER": unquote(parsed.username) if parsed.username else "",
+            "PASSWORD": unquote(parsed.password) if parsed.password else "",
+            "HOST": parsed.hostname or "",
+            "PORT": str(port),
+        }
+        opts: dict = {}
+        if query.get("sslmode") and query["sslmode"][0]:
+            opts["sslmode"] = query["sslmode"][0]
+        host = (parsed.hostname or "").lower()
+        if host not in ("", "localhost", "127.0.0.1"):
+            opts.setdefault("sslmode", "require")
+        if opts:
+            cfg["OPTIONS"] = opts
+        return cfg
+
+    host = (os.getenv("DB_HOST") or "localhost").strip().lower()
+    cfg = {
         "ENGINE": "django.contrib.gis.db.backends.postgis",
         "NAME": os.getenv("DB_NAME", "landcover"),
         "USER": os.getenv("DB_USER", "postgres"),
@@ -126,7 +155,15 @@ DATABASES = {
         "HOST": os.getenv("DB_HOST", "localhost"),
         "PORT": os.getenv("DB_PORT", "5432"),
     }
-}
+    # Managed Postgres (e.g. Render) needs TLS; local Docker often uses DB_SSLMODE=disable.
+    if host not in ("", "localhost", "127.0.0.1"):
+        sslmode = (os.getenv("DB_SSLMODE") or "require").strip()
+        if sslmode:
+            cfg["OPTIONS"] = {"sslmode": sslmode}
+    return cfg
+
+
+DATABASES = {"default": _database_config()}
 
 AUTH_PASSWORD_VALIDATORS = [
     {"NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"},
