@@ -1,5 +1,6 @@
 import os
 from pathlib import Path
+from urllib.parse import urlparse
 
 from dotenv import load_dotenv
 
@@ -40,6 +41,22 @@ DEBUG = os.getenv("DJANGO_DEBUG", "true").lower() == "true"
 
 raw_hosts = os.getenv("DJANGO_ALLOWED_HOSTS", "localhost,127.0.0.1")
 ALLOWED_HOSTS = [host.strip() for host in raw_hosts.split(",") if host.strip()]
+
+# Render injects these for Web Services; Docker deploys often omit DJANGO_ALLOWED_HOSTS.
+def _merge_render_allowed_hosts(hosts: list[str]) -> None:
+    for key in ("RENDER_EXTERNAL_HOSTNAME", "RENDER_EXTERNAL_URL"):
+        raw = (os.getenv(key) or "").strip()
+        if not raw:
+            continue
+        if raw.startswith(("http://", "https://")):
+            hostname = urlparse(raw).hostname
+            if hostname and hostname not in hosts:
+                hosts.append(hostname)
+        elif raw not in hosts:
+            hosts.append(raw)
+
+
+_merge_render_allowed_hosts(ALLOWED_HOSTS)
 
 INSTALLED_APPS = [
     "django.contrib.admin",
