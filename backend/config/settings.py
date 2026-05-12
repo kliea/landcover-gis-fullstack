@@ -72,7 +72,13 @@ CORS_ALLOWED_ORIGINS = [
     "http://127.0.0.1:5173",
     "http://localhost:4173",
     "http://127.0.0.1:4173",
+    "https://landcover-gis-fullstack.onrender.com",
 ]
+_cors_extra = os.getenv("DJANGO_CORS_ALLOWED_ORIGINS", "")
+for _origin in _cors_extra.split(","):
+    _o = _origin.strip()
+    if _o and _o not in CORS_ALLOWED_ORIGINS:
+        CORS_ALLOWED_ORIGINS.append(_o)
 
 ROOT_URLCONF = "config.urls"
 
